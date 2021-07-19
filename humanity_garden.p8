@@ -9,6 +9,8 @@ __lua__
 function _init()
  init_plr()
  init_plants()
+ init_ui()
+ init_controls()
  draw=draw_game
  update=update_plr
 end
@@ -26,6 +28,7 @@ function draw_game()
  cls(8)
  draw_plants()
  draw_plr()
+ draw_ui()
 end
 -->8
 -- [ player / controls ] --
@@ -50,8 +53,8 @@ function init_plr()
 	anim_repo=	
 	{ idle={1,1,3,2}
 	, run ={6,6,8,4}
-	, --place holder sprites
-	water={18,18,18,18}
+	, water={18,18,18,18}
+	, dance={33,33,33,33}
 	}
 end
 
@@ -59,13 +62,7 @@ function draw_plr()
  map()
 	palt(0,false)
 	palt(1,true)
-	local frame=anim_repo[plr.anim][plr.dir]
-	if plr.anim=="run" then
-	 local plr_anim_speed=12
-		frame+=(plr.t+plr_anim_speed)/plr_anim_speed%2
-	end
-	spr(frame
-	,plr.x,plr.y,1,1,plr.dir==1)
+	draw_player()
 	palt()
 end
 
@@ -75,7 +72,7 @@ function update_plr()
 	-- ⬅️➡️⬆️⬇️
 	if is_on_cell() and
 				plr.working==false then
- 	handle_movement_input() 
+ 	handle_input()
  elseif plr.anim=="run" then
 	 --go to next cell 
  	--add to plr x or y
@@ -96,33 +93,6 @@ function is_on_cell()
  return plr.x%8==0 and plr.y%8==0
 end
 
-function handle_movement_input()
-	if btn(❎) then --water anim
-	 plr.anim="water"
-	 plr.working=true
-	 start_work_timer(45,end_work)
-	elseif btn(⬆️) and plr.y>=8 then
-	 plr.anim="run"
-	 plr.dir=3 
-	 plr.y-=plr.spd 
-	elseif btn(➡️) and plr.x<=112 then
-	 plr.anim="run"
-  plr.dir=2
-	 plr.x+=plr.spd
- elseif btn(⬇️) and plr.y<=112 then
-	 plr.anim="run"
-	 plr.dir=4
-	 plr.y+=plr.spd
-	elseif btn(⬅️) and plr.x>=8 then
-	 plr.anim="run"
-	 plr.dir=1
-	 plr.x-=plr.spd
-	else
-		plr.anim="idle"
-		plr.t=0
-	end
-end
-
 function check_timer()
 	if timer.start_time+timer.length<plr.t
 	   and  timer.action~=false then
@@ -131,7 +101,7 @@ function check_timer()
     end
 end
 
-function start_work_timer(timer_len,action_function)
+function start_timer(timer_len,action_function)
 	timer.start_time=plr.t
  timer.length=timer_len
  timer.action=action_function	
@@ -143,6 +113,51 @@ function end_work()
 		plr.working=false
 end
 
+-- player work functions
+
+function water()
+	plr.anim="water"
+	plr.working=true
+	start_timer(45,end_work)
+end
+
+function dance()
+	plr.anim="dance"
+	plr.working=true
+	start_timer(18,end_work)
+end
+
+-- drwaing the player
+
+function draw_player()
+	local frame=anim_repo[plr.anim][plr.dir]
+	-- handle the animation by
+	-- getting the frame we're
+	-- supposed to show on the
+	-- screen
+	frame=get_anim_frame(frame)
+	spr(frame
+	,plr.x,plr.y,1,1,plr.dir==1)
+end
+
+-- function to get the sprite
+-- number to use in the spr
+-- function by handling the
+-- animatoin logic
+--
+-- _frame: the first frame in
+-- 								the animation sequence
+function get_anim_frame(_frame)
+	if plr.anim=="run" then
+	 local plr_anim_speed=12
+		return _frame+(plr.t+plr_anim_speed)/plr_anim_speed%2
+	elseif plr.anim=="dance" then
+		local plr_anim_speed=5
+		return _frame+(plr.t+plr_anim_speed)/plr_anim_speed%2
+	else
+		return _frame
+	end
+end
 -->8
 --plants
 
@@ -182,6 +197,150 @@ function update_plants()
   end 
 	end
 end
+-->8
+-- [ ui/menu ] --
+
+function init_ui()
+	-- if true, then display
+	-- the menu
+	disp_menu=false
+	-- labels for the
+	-- buttons in the ui
+	olbl,xlbl="menu","dance"
+end
+
+function draw_ui()
+ -- draw the buttons
+	printol("🅾️"..olbl,3,112,10,3)
+	printol("❎"..xlbl,3,120,10,3)
+end
+
+-- a function to create
+-- outlined text
+--
+-- txt: text to print
+-- x: x pixel to print at
+-- y: y prixel to print at
+-- fc: foreground color of text
+-- bc: background color of text
+function printol(txt,x,y,fc,bc)
+	-- horizontal offset of pixels
+	for hor=-1,1 do
+		-- vertical offset of pixels
+		for ver=-1,1 do
+			print(txt,x+hor,y+ver,bc)
+		end
+	end
+	
+	print(txt,x,y,fc)
+end
+
+function toggle_disp_menu()
+	-- if disp_menu is true,
+	-- then set it to false.
+	-- if disp_menu is false,
+	-- then set it to true.
+	disp_menu=not disp_menu
+	
+	if disp_menu then
+		--box_offset=1
+		--set_btndir(move_ui_sel,true)
+		--set_btnx(do_ui_sel,"SELECT")
+		olbl="close"
+		--sfx(9)
+	else
+		--set_btndir(move_plr,false)
+		--set_btnx()
+		olbl="menu"
+		--sfx(10)
+	end
+end
+-->8
+-- [ controls ] --
+
+function init_controls()
+	-- variables to hold the
+	-- functions when the buttons
+	-- are pressed
+	btnpo=do_nothing
+	btnpx=dance
+end
+
+-- temp function so that when
+-- the user presses the button
+-- nothing happens
+function do_nothing()
+end
+
+-- function to handle the input
+-- by the user. this is called
+-- in the player code
+function handle_input()
+	-- this is in a separate if
+	-- statement since we want
+	-- to be able to open
+	-- the menu at all times
+	if (btn(🅾️)) btnpo()
+	
+	if btn(❎) then 
+		btnpx()
+	elseif btn(⬆️) and plr.y>=8 then
+	 plr.anim="run"
+	 plr.dir=3 
+	 plr.y-=plr.spd 
+	elseif btn(➡️) and plr.x<=112 then
+	 plr.anim="run"
+  plr.dir=2
+	 plr.x+=plr.spd
+ elseif btn(⬇️) and plr.y<=112 then
+	 plr.anim="run"
+	 plr.dir=4
+	 plr.y+=plr.spd
+	elseif btn(⬅️) and plr.x>=8 then
+	 plr.anim="run"
+	 plr.dir=1
+	 plr.x-=plr.spd
+	else
+		plr.anim="idle"
+		plr.t=0
+	end
+end
+
+-- set the 🅾️ button
+--
+-- f: the function to call
+-- 			when the button is
+-- 			pressed
+-- lbl: what to label the
+-- 					button in the ui
+function set_btno(f,lbl)
+	-- if a function is not in
+	-- the argument then set
+	-- it to open/close menu
+	if not f then
+		btnpo,olbl=toggle_disp_menu,"menu"
+	else
+		btnpo,olbl=f,lbl
+	end
+end
+
+-- set the ❎ button
+--
+-- f: the function to call
+-- 			when the button is
+-- 			pressed
+-- lbl: what to label the
+-- 					button in the ui
+function set_btnx(f,lbl)
+	-- if a function is not in
+	-- the argument then set
+	-- a default action
+	if not f then
+		btnpx,xlbl=dance,"dance"
+	else
+		btnpx,xlbl=f,lbl
+	end
+end
 __gfx__
 000000001114411111144111111441111114411111144111111144111111441111144111111441110000000000000000000b0000000000000000000000000000
 0000000011444411114444111144441111444411114444111114444111144441114444111144441100000000000000000033b000000000000000000000000000
@@ -189,8 +348,8 @@ __gfx__
 0007700017770711170770711777777117077071170770711177707111777071177777711777777100300000000b000000333000000000000000000000000000
 00077000177e77111e7777e1177777711e7777e11e7777e11177e7711177e77117777771177777710000000000bb0000000b0000000000000000000000000000
 0070070011373111133334311333333173333437733334371113731111137311733333377333333700000300003b300000030000000000000000000000000000
-00000000113331111733337117333371113333111133331111733361116333711163331111333611000300000000000000000000000000000000000000000000
-00000000111611111161161111611611111116111161111111111111111111111111161111611111000000000000000000000000000000000000000000000000
+00000000113331111733337117333371113333111133331111133311111333711163331111333611000300000000000000000000000000000000000000000000
+00000000111611111161161111611611111116111161111111171111111111111111161111611111000000000000000000000000000000000000000000000000
 000000000000000077000007000000000000000000000000000000000000000000000000000000000000000000000000770bb000000000000000000000000000
 00000000000000000070077700000000000000000000000000000000000000000000000000000000000000000000300077b00b00000000000000000000000000
 000000000000000000077700000000000000000000000000000000000000000000000000000000000000000000030300000b0770000000000000000000000000
@@ -198,6 +357,15 @@ __gfx__
 0000000000000000077000070000000000000000000000000000000000000000000000000000000000f000000003000000770000000000000000000000000000
 0000000000000000770000000000000000000000000000000000000000000000000000000000000000000f00000f000000ff0000000000000000000000000000
 00000000000000007000000000000000000000000000000000000000000000000000000000000000000f00000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000114444111114411100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000177777711144441100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000170770711777777100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000007e7777e71707707100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000133334311e7777e100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000133333311333343100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000116116111733337100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000111111111161161100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0a00000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
