@@ -6,6 +6,7 @@ __lua__
 -- [ main / utils ] --
 
 function _init()
+	debug=false
  t=0
 	init_intro()
 end
@@ -23,6 +24,7 @@ function _update()
 end
 
 function init_game()
+	init_world()
  init_plr()
  init_plants()
  init_ui()
@@ -41,6 +43,9 @@ function draw_game()
  draw_plants()
  draw_plr()
  draw_ui()
+ if debug then
+ 	print(get_entity(plr.x,plr.y))
+ end
 end
 
 --these two functions work
@@ -99,10 +104,10 @@ end
 
 function update_plr()
 	plr.t+=1
-	check_timer()
 	-- ⬅️➡️⬆️⬇️
 	if is_on_cell() and
 				plr.working==false then
+		check_infront()
  	handle_input()
  elseif plr.anim=="run" then
 	 --go to next cell 
@@ -124,18 +129,17 @@ function is_on_cell()
  return plr.x%8==0 and plr.y%8==0
 end
 
-function check_timer()
-	if timer.start_time+timer.length<plr.t
-	   and  timer.action~=false then
-	   	timer.action()
-	   	timer.action=false
-    end
-end
-
-function start_timer(timer_len,action_function)
-	timer.start_time=plr.t
- timer.length=timer_len
- timer.action=action_function	
+function check_infront()
+	local entity = 
+		get_entity(plr.x,plr.y)
+	-- don't do anything if there
+	-- is nothing of interest
+	-- in front of the player
+	if entity == nil then
+		xlbl="dance"
+	else
+		xlbl="water"
+	end
 end
 
 function end_work()
@@ -149,13 +153,13 @@ end
 function water()
 	plr.anim="water"
 	plr.working=true
-	start_timer(45,end_work)
+	do_after(45,end_work)
 end
 
 function dance()
 	plr.anim="dance"
 	plr.working=true
-	start_timer(18,end_work)
+	do_after(18,end_work)
 end
 
 -- drwaing the player
@@ -206,6 +210,7 @@ function add_plant(_x,_y)
   state=0,
   picked=0,
   t=0}
+ set_entity(_x,_y,"plant")
  add(plants,plant)
 end
 
@@ -435,7 +440,7 @@ function draw_particles()
 	end)
 end
 -->8
--- [ intro screens ] --\
+-- [ intro screens ] --
 
 function init_intro()
 	draw=draw_intro
@@ -528,6 +533,36 @@ function fadepal(_perc)
   pal(j,col,1)
  end
 end
+-->8
+-- [ world ] --
+
+function init_world()
+	entities={}
+end
+
+--sets an entity in the table
+function set_entity(_x,_y,e)
+	local y_table=entities[_x]
+	if y_table~=nil then
+		y_table[_y]=e
+	else
+		--if there are no tables
+		--for the x coordinate
+		--yet, then create one
+		entities[_x]={}
+		entities[_x][_y]=e
+	end
+end
+
+function get_entity(_x,_y)
+	local y_table=entities[_x]
+	if y_table~=nil then
+		return y_table[_y]
+	else
+		return nil
+	end
+end
+
 __gfx__
 000000001114411111144111111441111114411111144111111441111114411111144111111441110000000000000000000b0000000000000000000000000000
 0000000011444411114444111144441111444411114444111144441111444411114444111144441100000000000000000033b000000000000000000000000000
