@@ -68,7 +68,7 @@ function do_after(_t,_f)
 	add(q,{f=_f,t=_t})
 end
 -->8
--- [ player / controls ] --
+-- [ player ] --
 
 function init_plr()
 	plr=
@@ -125,14 +125,28 @@ function is_on_cell()
 end
 
 function check_infront()
+	local x_offset=0
+	local y_offset=0
+	
+	if plr.dir==1 then
+		x_offset=-8
+	elseif plr.dir==2 then
+		x_offset=8
+	elseif plr.dir==3 then
+		y_offset=-8
+	elseif plr.dir==4 then
+		y_offset=8
+	end
+	
 	local entity = 
-		get_entity(plr.x,plr.y)
+		get_entity(plr.x+x_offset
+			,plr.y+y_offset)
 	-- don't do anything if there
 	-- is nothing of interest
 	-- in front of the player
-	if entity == nil then
+	if entity==nil then
 	set_btnx()
-	else
+	elseif entity=="plant" then
 		set_btnx(water,"water")
 	end
 end
@@ -270,12 +284,12 @@ function init_ui()
 end
 
 function draw_ui()
-	brd_rect(0,120,128,8,15,2)
+	brd_rect(0,104,128,24,15,2)
 	-- draw the border on the bottom
 	-- of the screen
  -- draw the buttons
-	printol("🅾️"..olbl,3,104,10,3)
-	printol("❎"..xlbl,3,112,10,3)
+	printol("🅾️"..olbl,3,108,10,3)
+	printol("❎"..xlbl,3,119,10,3)
 end
 
 -- a function to create
@@ -369,7 +383,7 @@ function handle_input()
 	 plr.anim="run"
   plr.dir=2
 	 plr.x+=plr.spd
- elseif btn(⬇️) and plr.y<=112 then
+ elseif btn(⬇️) and plr.y<=92 then
 	 plr.anim="run"
 	 plr.dir=4
 	 plr.y+=plr.spd
