@@ -36,10 +36,11 @@ end
 function update_game()
 	update_plr()
  update_plants()
+ update_ui()
 end
 
 function draw_game()
- cls(5)
+ cls(13)
  draw_plants()
  draw_plr()
  draw_ui()
@@ -286,6 +287,13 @@ function init_ui()
 	-- buttons in the ui
 	olbl,xlbl="menu","dance"
 	box_offset=1
+	menu_actionable=false
+	indicator_off=0
+end
+
+function update_ui()
+	indicator_off=max(0
+		,indicator_off-0.1)
 end
 
 function draw_ui()
@@ -297,21 +305,25 @@ function draw_hud()
 	brd_rect(0,104,128,24,15,2)
 	-- draw the border on the bottom
 	-- of the screen
- -- draw the buttons
-	printol("🅾️"..olbl,3,108,10,3)
-	printol("❎"..xlbl,3,119,10,3)
+ -- draw the buttons 	local lbl_off=-sin(indicator_off)
+	local lbl_off=-sin(indicator_off)
+	printol("🅾️"..olbl,3
+		,108+lbl_off,10,3)
+	printol("❎"..xlbl,3
+		,119+lbl_off,10,3)
 end
 
 function toggle_disp_menu()	
 	disp_menu=not disp_menu
 	plr.actionable=not plr.actionable
-
 	
 	if disp_menu then
 		box_offset=1
 		--set_btndir(move_ui_sel,true)
 		--set_btnx(do_ui_sel,"select")
 		olbl="close"
+		set_btnx(function() end
+			,"select")
 		sfx(9)
 	else
 		--set_btndir(move_plr,false)
@@ -329,6 +341,7 @@ function draw_menu()
 	local w,h=104,88
 	local x,y,tx,ty=draw_ctr_box(
 		w,h,-30,true)
+	?"craft",x,y-10,15
 end
 
 function draw_ctr_box(
@@ -338,18 +351,18 @@ function draw_ctr_box(
 	dx+=128*box_offset
 
 	box_offset=disp_menu 
-		and max(box_offset-0.01-box_offset/3,0)
-		or  min(box_offset+0.01+box_offset/3,1)
+		and max(box_offset-0.03-box_offset/3,0)
+		or  min(box_offset+0.03+box_offset/3,1)
 	draw_box(dx,dy,pw,ph,head)
 
 	return dx+5,dy+4,dx+pw,dy+ph
 end
 
 function draw_box(x,y,w,h,head)
-	brd_rect(x+2,y+2,w,h,3)
+	brd_rect(x+2,y+2,w,h,5)
 	if head then
-	 brd_rect(x+2,y-5,w,7,3)
-	 brd_rect(x+2,y-6,w,1,3)
+	 brd_rect(x+2,y-5,w,7,5)
+	 brd_rect(x+2,y-6,w,1,5)
  end
 	
 	brd_rect(x,y,w,h,15,4)
@@ -410,19 +423,24 @@ function handle_menu_input()
 	-- statement since we want
 	-- to be able to open
 	-- the menu at all times
-	if (btnp(🅾️)) btnpo()
+	if btnp(🅾️) then
+	 btnpo()
+		indicator_off=1
+	end
 end
 
 -- function to handle the input
 -- by the user. this is called
 -- in the player code
-function handle_input()	
+function handle_input()
+	
 	if btnp(❎) then 
 		btnpx()
+		indicator_off=1
 	elseif btn(⬆️) and plr.y>=8 then
 	 plr.anim="run"
 	 plr.dir=3 
-	 plr.y-=plr.spd 
+	 plr.y-=plr.spd
 	elseif btn(➡️) and plr.x<=112 then
 	 plr.anim="run"
   plr.dir=2
