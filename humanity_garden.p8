@@ -6,7 +6,6 @@ __lua__
 -- [ main / utils ] --
 
 function _init()
-	debug=false
  t=0
 	init_intro()
 end
@@ -40,13 +39,10 @@ function update_game()
 end
 
 function draw_game()
- cls(2)
+ cls(5)
  draw_plants()
  draw_plr()
  draw_ui()
- if debug then
- 	print(get_entity(plr.x,plr.y))
- end
 end
 
 --these two functions work
@@ -78,6 +74,7 @@ function init_plr()
 	anim="idle",
 	t=0,
 	working=false,
+	actionable=true,
 	}
 	
 	-- ⬅️➡️⬆️⬇️
@@ -100,11 +97,15 @@ end
 function update_plr()
 	plr.t+=1
 	-- ⬅️➡️⬆️⬇️
-	if is_on_cell() and
-				plr.working==false then
+	handle_menu_input()
+	local on_cell = is_on_cell()
+	if on_cell and
+				plr.working==false and
+				plr.actionable then
 		check_infront()
  	handle_input()
- elseif plr.anim=="run" then
+ elseif plr.anim=="run" and
+			not on_cell then
 	 --go to next cell 
  	--add to plr x or y
  	if plr.dir==1 then
@@ -116,6 +117,9 @@ function update_plr()
  	elseif plr.dir==4 then
  	 plr.y+=plr.spd
  	end
+	elseif not plr.actionable and
+		plr.working==false then
+		plr.anim="idle"
 	end
 end
 
@@ -281,15 +285,79 @@ function init_ui()
 	-- labels for the
 	-- buttons in the ui
 	olbl,xlbl="menu","dance"
+	box_offset=1
 end
 
 function draw_ui()
+ draw_menu()
+ draw_hud()
+end
+
+function draw_hud()
 	brd_rect(0,104,128,24,15,2)
 	-- draw the border on the bottom
 	-- of the screen
  -- draw the buttons
 	printol("🅾️"..olbl,3,108,10,3)
 	printol("❎"..xlbl,3,119,10,3)
+end
+
+function toggle_disp_menu()	
+	disp_menu=not disp_menu
+	plr.actionable=not plr.actionable
+
+	
+	if disp_menu then
+		box_offset=1
+		--set_btndir(move_ui_sel,true)
+		--set_btnx(do_ui_sel,"select")
+		olbl="close"
+		sfx(9)
+	else
+		--set_btndir(move_plr,false)
+		set_btnx()
+		olbl="menu"
+		sfx(9)
+	end
+end
+
+function draw_menu()
+	if not disp_menu and box_offset==1 then
+		return
+	end
+	
+	local w,h=104,88
+	local x,y,tx,ty=draw_ctr_box(
+		w,h,-30,true)
+end
+
+function draw_ctr_box(
+		w,h,v_off,head)
+	local pw,ph=max(w+15,60),h+5
+	local dx,dy=6,(50+(v_off or 0))/2
+	dx+=128*box_offset
+
+	box_offset=disp_menu 
+		and max(box_offset-0.01-box_offset/3,0)
+		or  min(box_offset+0.01+box_offset/3,1)
+	draw_box(dx,dy,pw,ph,head)
+
+	return dx+5,dy+4,dx+pw,dy+ph
+end
+
+function draw_box(x,y,w,h,head)
+	brd_rect(x+2,y+2,w,h,3)
+	if head then
+	 brd_rect(x+2,y-5,w,7,3)
+	 brd_rect(x+2,y-6,w,1,3)
+ end
+	
+	brd_rect(x,y,w,h,15,4)
+	if head then
+		brd_rect(x,y-7,w,7,4)
+		brd_rect(x,y-8,w,1,4)
+		spr(2,x+w-9,y-8)
+	end
 end
 
 -- a function to create
@@ -319,33 +387,6 @@ function brd_rect(x,y,w,h,fc,bc)
 	rectfill(x,y,x+w-1,y+h-1,bc or fc)
 	rectfill(x+1,y+1,x+w-2,y+h-2,fc)
 end
-
-function toggle_disp_menu()
-	-- if disp_menu is true,
-	-- then set it to false.
-	-- if disp_menu is false,
-	-- then set it to true.
-	disp_menu=not disp_menu
-	
-	if disp_menu then
-		--box_offset=1
-		--set_btndir(move_ui_sel,true)
-		--set_btnx(do_ui_sel,"SELECT")
-		olbl="close"
-		--sfx(9)
-	else
-		--set_btndir(move_plr,false)
-		--set_btnx()
-		olbl="menu"
-		--sfx(10)
-	end
-end
-
-function draw_hud()
-	brd_rect(cx-1,cy+120,130,9,4,5)
-	print_res(cx+1,cy+122,wood,stone,food,nil,true)
-	print_pnum(cx+86,cy+122)
-end
 -->8
 -- [ controls ] --
 
@@ -353,8 +394,9 @@ function init_controls()
 	-- variables to hold the
 	-- functions when the buttons
 	-- are pressed
-	btnpo=do_nothing
-	btnpx=dance
+	set_btno()
+	set_btnx()
+	
 end
 
 -- temp function so that when
@@ -363,17 +405,19 @@ end
 function do_nothing()
 end
 
--- function to handle the input
--- by the user. this is called
--- in the player code
-function handle_input()
-	-- this is in a separate if
+function handle_menu_input()
+		-- this is in a separate if
 	-- statement since we want
 	-- to be able to open
 	-- the menu at all times
-	if (btn(🅾️)) btnpo()
-	
-	if btn(❎) then 
+	if (btnp(🅾️)) btnpo()
+end
+
+-- function to handle the input
+-- by the user. this is called
+-- in the player code
+function handle_input()	
+	if btnp(❎) then 
 		btnpx()
 	elseif btn(⬆️) and plr.y>=8 then
 	 plr.anim="run"
