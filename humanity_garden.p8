@@ -282,7 +282,7 @@ function draw_plants()
  	spr(64+spark.t
  		,spark.x
  		,spark.y)
- 	spark.t+=0.5
+ 	spark.t+=1
  	if spark.t>2 then
  		del(sparkles,spark)
  	end
@@ -290,9 +290,7 @@ function draw_plants()
 end
 
 function update_plants()
-
 	for plant in all(plants) do
-  
 	 if plant.watered then	
 	 	if (t+flr(rnd(4)))%30==0 then
   		local spark={
