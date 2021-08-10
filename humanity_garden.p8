@@ -71,6 +71,8 @@ function init_plr()
 	plr=
 	{dir=4,
 	x=8,y=8,
+	front_x=8,
+	front_y=16,
 	spd=1,
 	anim="idle",
 	t=0,
@@ -97,6 +99,8 @@ end
 
 function update_plr()
 	plr.t+=1
+	--get the cell in front
+	set_cell_infront()
 	-- ⬅️➡️⬆️⬇️
 	handle_menu_input()
 	local on_cell = is_on_cell()
@@ -129,7 +133,7 @@ function is_on_cell()
  return plr.x%8==0 and plr.y%8==0
 end
 
-function check_infront()
+function set_cell_infront()
 	local x_offset=0
 	local y_offset=0
 	
@@ -143,15 +147,20 @@ function check_infront()
 		y_offset=8
 	end
 	
+	plr.front_x=plr.x+x_offset
+	plr.front_y=plr.y+y_offset
+end
+
+function check_infront()
 	local entity = 
-		get_entity(plr.x+x_offset
-			,plr.y+y_offset)
+		get_entity(plr.front_x
+			,plr.front_y)
 	-- don't do anything if there
 	-- is nothing of interest
 	-- in front of the player
 	if entity==nil then
 	set_btnx()
-	elseif entity=="plant" then
+	elseif entity.kind=="plant" then
 		set_btnx(water,"water")
 	end
 end
@@ -168,6 +177,8 @@ function water()
 	plr.anim="water"
 	plr.working=true
 	do_after(45,end_work)
+	water_plant(plr.front_x
+		,plr.front_y)
 	sfx(10)
 end
 
@@ -244,37 +255,70 @@ function init_plants()
  add_plant(16,16)
  add_plant(16,24)
  add_plant(16,32)
+ 
+ --sparkle animation
+ sparkles={}
 end
 
 function add_plant(_x,_y)
  local plant={
+ 	kind="plant",
   x=_x,
   y=_y,
   state=0,
   picked=0,
+  watered=false,
   t=0}
- set_entity(_x,_y,"plant")
+ set_entity(_x,_y,plant)
  add(plants,plant)
 end
 
 function draw_plants()
  for plant in all(plants) do
-   spr(10+plant.state,plant.x,plant.y)
+  spr(10+plant.state,plant.x,plant.y)
+ end
+ 
+ for spark in all(sparkles) do
+ 	spr(64+spark.t
+ 		,spark.x
+ 		,spark.y)
+ 	spark.t+=0.5
+ 	if spark.t>2 then
+ 		del(sparkles,spark)
+ 	end
  end
 end
 
 function update_plants()
+
 	for plant in all(plants) do
-	 plant.t+=flr(rnd(8))
+  
+	 if plant.watered then	
+	 	if (t+flr(rnd(4)))%30==0 then
+  		local spark={
+  			x=plant.x+flr(rnd(4)),
+  			y=plant.y+flr(rnd(4)),
+  			t=0,
+  		}
+  		add(sparkles,spark)
+  	end
+	 	plant.t+=flr(rnd(4))
 	 	--todo change later 
-	 if plant.t>450 then 
- 	 plant.t=0
+	 	if plant.t>450 then 
+ 	 	plant.t=0
+ 	 	plant.watered=false
  	 
-	  if plant.state<2 then
-	  	plant.state+=1
+	 	 if plant.state<2 then
+	  		plant.state+=1
+ 	 	end
  	 end
   end 
 	end
+end
+
+function water_plant(_x,_y)
+	plant=get_entity(_x,_y)
+	plant.watered=true
 end
 -->8
 -- [ ui/menu ] --
@@ -315,9 +359,9 @@ end
 
 function toggle_disp_menu()	
 	disp_menu=not disp_menu
-	plr.actionable=not plr.actionable
-	
+		
 	if disp_menu then
+		plr.actionable=false
 		box_offset=1
 		--set_btndir(move_ui_sel,true)
 		--set_btnx(do_ui_sel,"select")
@@ -329,6 +373,8 @@ function toggle_disp_menu()
 		--set_btndir(move_plr,false)
 		set_btnx()
 		olbl="menu"
+		do_after(15,function()
+			plr.actionable=true end)
 		sfx(9)
 	end
 end
@@ -703,6 +749,10 @@ __gfx__
 0000000000000000000000000000000011111111000000000000000000000000eeeeeeee077700770777077700770eee07700777077700000770e0770eeeeeee
 0000000000000000000000000000000011111111000000000000000000000000eeeeeeee007777700077770707700eee00777707007777700770e0700eeeeeee
 0000000000000000000000000000000011111111000000000000000000000000eeeeeeeee0000000e00000000000eeeee0000000000000000000e000eeeeeeee
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000007000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00c0000007c700000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000007000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0a00000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
