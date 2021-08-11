@@ -86,6 +86,7 @@ function init_plr()
 	, run ={6,6,8,4}
 	, water={35,35,37,36}
 	, dance={33,33,33,33}
+	, work={35,35,37,36}
 	}
 end
 
@@ -160,6 +161,9 @@ function check_infront()
 	-- in front of the player
 	if entity==nil then
 	set_btnx()
+	elseif entity.kind=="plant"
+		and entity.state==2 then
+		set_btnx(pick,"pick")
 	elseif entity.kind=="plant" then
 		set_btnx(water,"water")
 	end
@@ -180,6 +184,15 @@ function water()
 	water_plant(plr.front_x
 		,plr.front_y)
 	sfx(10)
+end
+
+function pick()
+	plr.anim="work"
+	plr.working=true
+	pick_plant(plr.front_x
+		,plr.front_y)
+	do_after(10,end_work)
+	sfx(8)
 end
 
 function dance()
@@ -266,7 +279,7 @@ function add_plant(_x,_y)
   x=_x,
   y=_y,
   state=0,
-  picked=0,
+  picked=false,
   watered=false,
   t=0}
  set_entity(_x,_y,plant)
@@ -291,6 +304,13 @@ end
 
 function update_plants()
 	for plant in all(plants) do
+		if plant.picked then
+			plant.t=0
+			plant.state=0
+			plant.picked=false
+			plant.watered=false
+		end
+		
 	 if plant.watered then	
 	 	if (t+flr(rnd(4)))%30==0 then
   		local spark={
@@ -300,7 +320,7 @@ function update_plants()
   		}
   		add(sparkles,spark)
   	end
-	 	plant.t+=flr(rnd(4))
+	 	plant.t+=flr(rnd(20))
 	 	--todo change later 
 	 	if plant.t>450 then 
  	 	plant.t=0
@@ -317,6 +337,11 @@ end
 function water_plant(_x,_y)
 	plant=get_entity(_x,_y)
 	plant.watered=true
+end
+
+function pick_plant(_x,_y)
+	plant=get_entity(_x,_y)
+	plant.picked=true
 end
 -->8
 -- [ ui/menu ] --
