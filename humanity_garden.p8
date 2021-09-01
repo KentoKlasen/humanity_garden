@@ -453,8 +453,10 @@ function draw_menu()
 		w,h,-30,true)
 	?"craft",x,y-10,15
 	
+	local recipe_y = y+5
 	for recipe in all(recipies) do
-		?recipe.label,x,y+10,14
+		?recipe.label,x+10,recipe_y,14
+		recipe_y+=10
 	end
 end
 
@@ -547,49 +549,52 @@ end
 -- by the user. this is called
 -- in the player code
 function handle_input()
-	
-	if btnp(❎) then 
-		btnpx()
-		indicator_off=1
-	elseif btn(⬆️) and plr.y>=8 then
-	 plr.anim="run"
-	 plr.dir=3 
-	 if not fget(mget(plr.x/8,
-	 	(plr.y-8)/8),0) and
-	 		not get_entity_collision(
-	 			plr.x,plr.y-8) then
-	  plr.y-=plr.spd
-	 end
-	elseif btn(➡️) and plr.x<=112 then
-	 plr.anim="run"
-  plr.dir=2
-	 if not fget(mget((plr.x+8)/8,
-	  			plr.y/8),0) and
-	  		not get_entity_collision(
-	  			plr.x+8,plr.y)	then
-	  plr.x+=plr.spd
-	 end
- elseif btn(⬇️) and plr.y<=92 then
-	 plr.anim="run"
-	 plr.dir=4
-	 if not fget(mget(plr.x/8,
-	 	(plr.y+8)/8),0) and
-	 		not get_entity_collision(
-	 			plr.x, plr.y+8) then
-	  plr.y+=plr.spd
-	 end
-	elseif btn(⬅️) and plr.x>=8 then
-	 plr.anim="run"
-	 plr.dir=1
-	 if not fget(mget((plr.x-8)/8,
-	  			plr.y/8),0) and
-	  			not get_entity_collision(
-	  				plr.x-8,plr.y) then
-	  plr.x-=plr.spd
-	 end
+	if disp_menu then
+		--do something
 	else
-		plr.anim="idle"
-		plr.t=0
+		if btnp(❎) then 
+			btnpx()
+			indicator_off=1
+		elseif btn(⬆️) and plr.y>=8 then
+			plr.anim="run"
+			plr.dir=3 
+			if not fget(mget(plr.x/8,
+					(plr.y-8)/8),0) and
+				not get_entity_collision(
+					plr.x,plr.y-8) then
+				plr.y-=plr.spd
+			end
+		elseif btn(➡️) and plr.x<=112 then
+			plr.anim="run"
+			plr.dir=2
+			if not fget(mget((plr.x+8)/8,
+					plr.y/8),0) and
+				not get_entity_collision(
+					plr.x+8,plr.y)	then
+				plr.x+=plr.spd
+			end
+		elseif btn(⬇️) and plr.y<=92 then
+			plr.anim="run"
+			plr.dir=4
+			if not fget(mget(plr.x/8,
+					(plr.y+8)/8),0) and
+				not get_entity_collision(
+					plr.x, plr.y+8) then
+				plr.y+=plr.spd
+			end
+		elseif btn(⬅️) and plr.x>=8 then
+			plr.anim="run"
+			plr.dir=1
+			if not fget(mget((plr.x-8)/8,
+					plr.y/8),0) and
+				not get_entity_collision(
+					plr.x-8,plr.y) then
+			plr.x-=plr.spd
+			end
+		else
+			plr.anim="idle"
+			plr.t=0
+		end
 	end
 end
 
@@ -738,8 +743,6 @@ function draw_intro()
 		100+intro_wobble+screen_off,
 		7,0)
 
-	print("by kento klasen",
-		2,122,15)
 	palt()
 	fadepal(fade_percentage/100)
 end
@@ -816,6 +819,9 @@ function init_crafting()
 		{label="shirt",
 			hemp=1,
 		},
+		{label="sweat shirt",
+			hemp=3,
+		}
 	} 
 end
 __gfx__
