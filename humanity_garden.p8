@@ -26,27 +26,46 @@ end
 function init_game()
 	init_world()
 	init_crafting()
- init_plr()
- init_plants()
- init_ui()
- init_controls()
- draw=draw_game
- update=update_game
- music(0)
+ 	init_plr()
+ 	init_plants()
+ 	init_ui()
+ 	init_controls()
+ 	draw=draw_game
+	update=update_game
+	music(0)
 end
 
 function update_game()
 	update_plr()
- update_plants()
- update_ui()
+ 	update_plants()
+ 	update_ui()
+	update_crafting()
 end
 
 function draw_game()
- cls(3)
- map()
- draw_plants()
- draw_plr()
- draw_ui()
+ 	cls(3)
+	map()
+ 	draw_plants()
+ 	draw_plr()
+ 	draw_ui()
+ 	if debug then
+		draw_debug()
+	end
+end
+
+function draw_debug()
+	cursor()
+	color(0)
+	color()
+	?plr.x
+	?plr.y
+	?fget(mget(plr.front_x/8,plr.front_y/8),0)
+	?mget(plr.front_x/8,plr.front_y/8)
+	?recipies[1]["hemp"]
+	?resources[1]
+	for resource in all(resources) do
+		?resource
+	end
 end
 
 --these two functions work
@@ -104,12 +123,6 @@ function draw_plr()
 	palt(1,true)
 	draw_player()
 	palt()
-	if debug then
-		?plr.x
-		?plr.y
-		?fget(mget(plr.front_x/8,plr.front_y/8),0)
-		?mget(plr.front_x/8,plr.front_y/8)
-	end
 end
 
 function update_plr()
@@ -453,11 +466,18 @@ function draw_menu()
 		w,h,-30,true)
 	?"craft",x,y-10,15
 	
-	local recipe_y = y+5
 	for recipe in all(recipies) do
-		?recipe.label,x+10,recipe_y,14
-		recipe_y+=10
+		local recipe_y=recipe.y+y
+		if recipe.craftable then
+			?recipe.label,x+10,recipe_y,11
+			spr(67,x+40,recipe_y)
+		else
+			?recipe.label,x+10,recipe_y,6
+			spr(67,x+40,recipe_y)
+		end
 	end
+	--draw cursor
+	spr(80,x,recipies[selected_recipe_i].y+y)
 end
 
 function draw_ctr_box(
@@ -550,7 +570,9 @@ end
 -- in the player code
 function handle_input()
 	if disp_menu then
-		--do something
+		if btnp(❎) then
+			btnpx()
+		end
 	else
 		if btnp(❎) then 
 			btnpx()
@@ -815,15 +837,41 @@ end
 -- [ crafting ] --
 
 function init_crafting()
+	resources={"hemp"}
 	recipies={
 		{label="shirt",
 			hemp=1,
+			craftable=false,
+			y=5
 		},
 		{label="sweat shirt",
 			hemp=3,
+			craftable=false,
+			y=15
 		}
-	} 
+	}
+	selected_recipe_i=1
 end
+
+function update_crafting()
+	if disp_menu then
+		for recipe in all(recipies) do
+			-- check for each resource
+			local craftable=true
+			for resource in all(resources) do
+				if recipe[resource]>inventory[resource] then
+					craftable=false
+				end
+			end
+			recipe.craftable=craftable
+		end
+	end
+end
+
+function craft_in_menu()
+	sfx(10)
+end
+
 __gfx__
 000000001119911111199111111991111119911111199111111991111119911111199111111991110000000000000000000b0000000000000000000000000000
 0000000011999911119999111199991111999911119999111199991111999911119999111199991100000000000000000033b000000000000000000000000000
