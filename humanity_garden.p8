@@ -435,8 +435,13 @@ function draw_hud()
 		,112+lbl_off,10,3)
 	printol("❎"..xlbl,3
 		,120+lbl_off,10,3)
-	spr(67,48,112)
-	?inventory.hemp,56,112,3
+	local x=48
+	for i,v in ipairs(resource_ordered_list) do
+		spr(resources[v],x,112)
+		x+=8
+		?inventory[v],x,112,3
+		x+=8
+	end
 end
 
 function toggle_disp_menu()	
@@ -480,13 +485,15 @@ function draw_menu()
 			spr(67,x+64,recipe_y)
 		end
 
+		local offset=64
 		for k,v in pairs(resources) do
-			spr(v,x+64,recipe_y)
+			spr(v,x+offset,recipe_y)
 			if recipe[k]>inventory[k] then
-				?recipe[k],x+72,recipe_y,8
+				?recipe[k],x+offset+8,recipe_y,8
 			else
-				?recipe[k],x+72,recipe_y,6
+				?recipe[k],x+offset+8,recipe_y,6
 			end
+			offset+=16
 		end
 	end
 	--draw cursor
@@ -858,6 +865,7 @@ end
 -- [ crafting ] --
 
 function init_crafting()
+	resource_ordered_list={"hemp","metal","cotton"}
 	resources={
 		hemp=67,
 		metal=68,
