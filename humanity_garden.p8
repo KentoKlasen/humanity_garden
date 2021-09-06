@@ -33,6 +33,8 @@ function init_game()
  	draw=draw_game
 	update=update_game
 	music(0)
+	--debug variables
+	lastpressed=0
 end
 
 function update_game()
@@ -65,6 +67,7 @@ function draw_debug()
 	?selected_recipe_i
 	?#recipies
 	?disp_menu
+	?lastpressed
 end
 
 --these two functions work
@@ -479,7 +482,7 @@ function draw_menu()
 			if recipe[k]>inventory[k] then
 				?recipe[k],x+72,recipe_y,8
 			else
-				?recipe[k],x+72,recipe_y,5
+				?recipe[k],x+72,recipe_y,11
 			end
 		end
 	end
@@ -562,7 +565,7 @@ function do_nothing()
 end
 
 function handle_menu_input()
-		-- this is in a separate if
+	-- this is in a separate if
 	-- statement since we want
 	-- to be able to open
 	-- the menu at all times
@@ -570,21 +573,25 @@ function handle_menu_input()
 	 btnpo()
 		indicator_off=1
 	end
+
+	if disp_menu then
+		if btnp(❎) then
+			btnpx()
+		elseif btnp(⬆️) then
+			selected_recipe_i=max(1,selected_recipe_i-1)
+			lastpressed=⬆️
+		elseif btnp(⬇️) then
+			selected_recipe_i=min(#recipies,selected_recipe_i+1)
+			lastpressed=⬇️
+		end
+	end
 end
 
 -- function to handle the input
 -- by the user. this is called
 -- in the player code
 function handle_input()
-	if disp_menu then
-		if btnp(❎) then
-			btnpx()
-		elseif btnp(⬆️) then
-			selected_recipe_i=max(1,selected_recipe_i-1)
-		elseif btnp(⬇️) then
-			selected_recipe_i=min(#recipies,selected_recipe_i+1)
-		end
-	else
+	if not disp_menu then
 		if btnp(❎) then 
 			btnpx()
 			indicator_off=1
