@@ -556,14 +556,14 @@ function draw_hud()
 		,112+lbl_off,10,3)
 	printol("❎"..xlbl,3
 		,120+lbl_off,10,3)
-	local x=48
+	local x=80
 	for i,v in ipairs(resource_ordered_list) do
 		spr(resources[v],x,112)
 		x+=8
 		?inventory[v],x,112,3
 		x+=8
 	end
-	local x=48
+	local x=80
 	-- empty boxes for where the inventory goes
 	palt(13,true)
 	for i=1,#recipies do
