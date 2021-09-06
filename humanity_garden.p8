@@ -430,7 +430,7 @@ function draw_hud()
 	-- draw the border on the bottom
 	-- of the screen
  -- draw the buttons 	local lbl_off=-sin(indicator_off)
- lbl_off=-sin(indicator_off)
+ 	lbl_off=-sin(indicator_off)
 	printol("🅾️"..olbl,3
 		,112+lbl_off,10,3)
 	printol("❎"..xlbl,3
@@ -441,6 +441,15 @@ function draw_hud()
 		x+=8
 		?inventory[v],x,112,3
 		x+=8
+	end
+	local x=48
+	-- empty boxes for where the inventory goes
+	for i=1,#recipies do
+		rect(x,118,x+7,125,13)
+		if inventory[recipies[i].label] then
+			spr(recipies[i].sprite_number,x,118)
+		end
+		x+=9
 	end
 end
 
