@@ -122,8 +122,11 @@ function init_plr()
 		hemp=0,
 		metal=0,
 		cotton=0,
-		shirt=false,
-		sweatshirt=false,
+		shirt=true,
+		hoodie=true,
+		jeans=true,
+		pants=true,
+		jacket=true,
 	}
 end
 
@@ -746,7 +749,7 @@ end
 
 function draw_end_game()
 	pal()
-	cls(12)
+	cls(3)
 	palt(14,true)
 	palt(0,false)
 	palt(13,true)
@@ -754,7 +757,7 @@ function draw_end_game()
 		0,20,128,32)
 	printol("you crafted all the clothes!",8,60,5,6)
 	for i=1,#recipies do
-		spr(recipies[i].sprite_number,40+i*8,71)
+		spr(recipies[i].sprite_number,30+i*10,71)
 	end
 	printol("thanks for playing!",27,84,5,6)
 	palt()
