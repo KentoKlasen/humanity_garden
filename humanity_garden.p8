@@ -8,7 +8,7 @@ __lua__
 function _init()
  	t=0
 	init_intro()
-	debug=true
+	debug=false
 end
 
 function _draw()
@@ -132,11 +132,11 @@ function init_plr()
 		hemp=0,
 		metal=0,
 		cotton=0,
-		shirt=true,
-		hoodie=true,
+		shirt=false,
+		hoodie=false,
 		jeans=false,
-		pants=true,
-		jacket=true,
+		pants=false,
+		jacket=false,
 	}
 end
 
@@ -493,9 +493,9 @@ function update_plants()
   				}
   				add(sparkles,spark)
   			end
-	 		plant.t+=flr(rnd(20))
+	 		plant.t+=flr(rnd(4))
 	 		--todo change later 
-			if plant.t>450 then 
+			if plant.t>600 then 
  	 			plant.t=0
  	 			plant.watered=false
  	 
