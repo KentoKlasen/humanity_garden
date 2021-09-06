@@ -124,7 +124,7 @@ function init_plr()
 		cotton=0,
 		shirt=true,
 		hoodie=true,
-		jeans=true,
+		jeans=false,
 		pants=true,
 		jacket=true,
 	}
@@ -249,6 +249,15 @@ function pick()
 	sfx(8)
 end
 
+function mine()
+	plr.anim="water"
+	plr.working=true
+	do_after(45,end_work)
+	mine_rock(plr.front_x
+		,plr.front_y)
+	sfx(10)
+end
+
 function dance()
 	plr.anim="dance"
 	plr.working=true
@@ -319,7 +328,40 @@ function get_anim_frame(_frame)
 	end
 end
 -->8
---plants
+-- [ rocks ] --
+
+function init_rocks()
+	rocks={}
+
+	add_rock(8,60)
+end
+
+function add_rock(_x,_y)
+	local rock_xy = {
+		{x=_x,y=_y,id=73},
+		{x=_x+8,y=_y,id=74},
+		{x=_x,y=_y+8,id=89},
+		{x=_x+8,y=_y+8,id=90}
+	}
+	for i=1,#rock_xy do
+		local rock={
+			kind="rock",
+			x=rock_xy[i].x,
+			y=rock_xy[i].y,
+			id=rock_xy[i].id,
+			collision=true
+		}
+		set_entity(_x,_y,rock)
+ 		add(rocks,rock)
+	end
+end
+
+function mine_rock(_x,_y)
+	inventory.metal+=1
+end
+
+-->8
+-- [ plants ] --
 
 function init_plants()
  	plants={}
@@ -920,33 +962,33 @@ function init_crafting()
 		},
 		{label="hoodie",
 		sprite_number=97,
-			hemp=3,
+			hemp=2,
 			metal=0,
-			cotton=3,
+			cotton=2,
 			craftable=false,
 			y=15
 		},
 		{label="jeans",
 		sprite_number=98,
 			hemp=0,
-			metal=0,
-			cotton=3,
+			metal=1,
+			cotton=2,
 			craftable=false,
 			y=25
 		},
 		{label="jacket",
 		sprite_number=99,
 			hemp=0,
-			metal=0,
-			cotton=5,
+			metal=2,
+			cotton=2,
 			craftable=false,
 			y=35
 		},
 		{label="pants",
 		sprite_number=100,
 			hemp=0,
-			metal=0,
-			cotton=2,
+			metal=1,
+			cotton=1,
 			craftable=false,
 			y=45
 		},
