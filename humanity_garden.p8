@@ -118,8 +118,8 @@ function init_plr()
 		hemp=0,
 		metal=0,
 		cotton=0,
-		shirt=0,
-		sweatshirt=0,
+		shirt=false,
+		sweatshirt=false,
 	}
 end
 
@@ -477,10 +477,11 @@ function draw_menu()
 	
 	for recipe in all(recipies) do
 		local recipe_y=recipe.y+y
+		spr(recipe.sprite_number,x+4,recipe_y-2)
 		if recipe.craftable then
-			?recipe.label,x+10,recipe_y,11
+			?recipe.label,x+14,recipe_y,11
 		else
-			?recipe.label,x+10,recipe_y,6
+			?recipe.label,x+14,recipe_y,6
 			spr(67,x+64,recipe_y)
 		end
 
@@ -496,7 +497,7 @@ function draw_menu()
 		end
 	end
 	--draw cursor
-	spr(80,x,recipies[selected_recipe_i].y+y)
+	spr(80,x-5,recipies[selected_recipe_i].y+y)
 end
 
 function draw_ctr_box(
@@ -872,6 +873,7 @@ function init_crafting()
 	}
 	recipies={
 		{label="shirt",
+		sprite_number=96,
 			hemp=1,
 			metal=0,
 			cotton=0,
@@ -879,6 +881,7 @@ function init_crafting()
 			y=5
 		},
 		{label="sweat shirt",
+		sprite_number=97,
 			hemp=3,
 			metal=0,
 			cotton=3,
@@ -899,7 +902,7 @@ function update_crafting()
 					craftable=false
 				end
 			end
-			recipe.craftable=craftable
+			recipe.craftable=craftable and not inventory[recipe.label]
 		end
 	end
 end
@@ -909,6 +912,10 @@ function craft()
 	if not selected_recipe.craftable then
 		sfx(18)
 	else
+		for resource in all(resource_ordered_list) do
+			inventory[resource]-=selected_recipe[resource]
+		end
+		inventory[selected_recipe.label]=true
 	end
 end
 
