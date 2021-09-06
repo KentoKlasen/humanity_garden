@@ -152,7 +152,9 @@ function update_plr()
 	--get the cell in front
 	set_cell_infront()
 	-- ⬅️➡️⬆️⬇️
-	handle_menu_input()
+	if plr.anim~="craft" then
+		handle_menu_input()
+	end
 	local on_cell = is_on_cell()
 	if on_cell and
 			plr.working==false and
