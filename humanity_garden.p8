@@ -205,10 +205,10 @@ function check_infront()
 	if not disp_menu then
 		if entity==nil then
 			set_btnx()
-		elseif entity.kind=="hemp"
+		elseif (entity.kind=="hemp" or entity.kind=="cotton")
 			and entity.state==2 then
 			set_btnx(pick,"pick")
-		elseif entity.kind=="hemp" then
+		elseif entity.kind=="hemp" or entity.kind=="cotton" then
 			set_btnx(water,"water")
 		end
 	end
@@ -319,15 +319,24 @@ end
 --plants
 
 function init_plants()
- plants={}
+ 	plants={}
+
+ 	add_plant(72,16,"hemp")
+ 	add_plant(80,16,"hemp")
+ 	add_plant(88,16,"hemp")
+ 	add_plant(96,16,"hemp")
+ 	add_plant(104,16,"hemp")
+ 	add_plant(112,16,"hemp")
+
+	add_plant(72,32,"cotton")
+ 	add_plant(80,32,"cotton")
+ 	add_plant(88,32,"cotton")
+ 	add_plant(96,32,"cotton")
+ 	add_plant(104,32,"cotton")
+ 	add_plant(112,32,"cotton")
  
- add_plant(88,16,"hemp")
- add_plant(96,16,"hemp")
- add_plant(104,16,"hemp")
- add_plant(112,16,"hemp")
- 
- --sparkle animation
- sparkles={}
+ 	--sparkle animation
+ 	sparkles={}
 end
 
 function add_plant(_x,_y,type)
@@ -339,7 +348,7 @@ function add_plant(_x,_y,type)
   	picked=false,
   	watered=false,
   	t=0,
-  	collision=false
+  	collision=true
 }
  set_entity(_x,_y,plant)
  add(plants,plant)
@@ -374,27 +383,26 @@ function update_plants()
 			plant.watered=false
 		end
 		
-	 if plant.watered then	
-	 	if (t+flr(rnd(4)))%30==0 then
-  		local spark={
-  			x=plant.x+flr(rnd(4)),
-  			y=plant.y+flr(rnd(4)),
-  			t=0,
-  		}
-  		add(sparkles,spark)
-  	end
-	 	plant.t+=flr(rnd(20))
-	 	--todo change later 
-	 	if plant.t>450 then 
- 	 	plant.t=0
- 	 	plant.watered=false
+	 	if plant.watered then	
+	 		if (t+flr(rnd(4)))%30==0 then
+  				local spark={
+  					x=plant.x+flr(rnd(4)),
+  					y=plant.y+flr(rnd(4)),
+  					t=0,
+  				}
+  				add(sparkles,spark)
+  			end
+	 		plant.t+=flr(rnd(20))
+	 		--todo change later 
+			if plant.t>450 then 
+ 	 			plant.t=0
+ 	 			plant.watered=false
  	 
-	 	 if plant.state<2 then
-	  		plant.state+=1
-	  		plant.collision=true
- 	 	end
- 	 end
-  end 
+	 	 		if plant.state<2 then
+	  				plant.state+=1
+ 	 			end
+ 	 		end
+  		end 
 	end
 end
 
@@ -1044,7 +1052,7 @@ dbb7777dd666b66dd1cdd1cdd995644dd44dd44d4940494900000000000000000000000000000000
 04111111111111111111111111111140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00444444444444444444444444444400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __gff__
-0000000000000000000000010100000000000000000000000000000101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000001010100000000000000000000000000010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0101010100000000000000000000000001010101000000000000000000000000010101010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
