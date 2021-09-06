@@ -112,6 +112,7 @@ function init_plr()
 	, water={35,35,37,36}
 	, dance={33,33,33,33}
 	, work={35,35,37,36}
+	, craft={33,33,33,33}
 	}
 	
 	inventory={
@@ -251,32 +252,36 @@ function draw_player()
 	-- screen
 	frame=get_anim_frame(frame)
 	if plr.anim=="water" then
- 	local xoffset=0
-	 local yoffset=0
-	 if plr.dir==3 then
-	 yoffset=-4
-	  spr(39
-	  ,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
-   spr(frame
-	  ,plr.x,plr.y,1,1,plr.dir==1)
-	 else
-   spr(frame
-	  ,plr.x,plr.y,1,1,plr.dir==1)
-	 local can_spr=38
-	  if plr.dir==1 then
-		  xoffset=-6
-		 elseif plr.dir==2 then
-		  xoffset=6
-		 elseif plr.dir==4 then
-		  can_spr=52
-		  yoffset=6
-	  end
-		 spr(can_spr
-		 ,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
-	 end
+ 		local xoffset=0
+		local yoffset=0
+		if plr.dir==3 then
+			yoffset=-4
+			spr(39
+				,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
+   			spr(frame
+	  			,plr.x,plr.y,1,1,plr.dir==1)
+	 	else
+   			spr(frame
+	  			,plr.x,plr.y,1,1,plr.dir==1)
+	 	local can_spr=38
+	  	if plr.dir==1 then
+			xoffset=-6
+		elseif plr.dir==2 then
+		  	xoffset=6
+		elseif plr.dir==4 then
+		 	can_spr=52
+		  	yoffset=6
+	  	end
+		 	spr(can_spr
+		 		,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
+	 	end
+	elseif plr.anim=="craft" then
+		spr(frame
+	 		,plr.x,plr.y,1,1,plr.dir==1)
+		spr(recipies[selected_recipe_i].sprite_number,plr.x,plr.y-8)
 	else
-	 spr(frame
-	 ,plr.x,plr.y,1,1,plr.dir==1)
+	 	spr(frame
+	 		,plr.x,plr.y,1,1,plr.dir==1)
 	end
 end
 
@@ -925,6 +930,11 @@ function craft()
 			inventory[resource]-=selected_recipe[resource]
 		end
 		inventory[selected_recipe.label]=true
+		toggle_disp_menu()
+		plr.anim="craft"
+		plr.working=true
+		do_after(45,end_work)
+		sfx(17)
 	end
 end
 
