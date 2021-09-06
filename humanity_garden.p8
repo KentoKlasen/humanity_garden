@@ -62,10 +62,9 @@ function draw_debug()
 	?fget(mget(plr.front_x/8,plr.front_y/8),0)
 	?mget(plr.front_x/8,plr.front_y/8)
 	?recipies[1]["hemp"]
-	?resources[1]
-	for resource in all(resources) do
-		?resource
-	end
+	?selected_recipe_i
+	?#recipies
+	?disp_menu
 end
 
 --these two functions work
@@ -572,6 +571,10 @@ function handle_input()
 	if disp_menu then
 		if btnp(❎) then
 			btnpx()
+		elseif btnp(⬆️) then
+			selected_recipe_i=max(1,selected_recipe_i-1)
+		elseif btnp(⬇️) then
+			selected_recipe_i=min(#recipies,selected_recipe_i+1)
 		end
 	else
 		if btnp(❎) then 
