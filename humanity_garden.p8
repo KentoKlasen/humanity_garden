@@ -6,17 +6,17 @@ __lua__
 -- [ main / utils ] --
 
 function _init()
- t=0
+ 	t=0
 	init_intro()
 	debug=true
 end
 
 function _draw()
- draw()
+ 	draw()
 end
 
 function _update()
- t+=1
+ 	t+=1
 	-- we want to update the
 	-- "afters" queue no matter what
 	upd_afters()
@@ -35,6 +35,8 @@ function init_game()
 	music(0)
 	--debug variables
 	lastpressed=0
+	fade_percentage=-1
+	start_end_game=false
 end
 
 function update_game()
@@ -50,6 +52,7 @@ function draw_game()
  	draw_plants()
  	draw_plr()
  	draw_ui()
+	fade_to_end_game()
  	if debug then
 		draw_debug()
 	end
@@ -157,6 +160,15 @@ function update_plr()
 	elseif not plr.actionable and
 		plr.working==false then
 		plr.anim="idle"
+	end
+	--Check if everything is crafted
+	done=true
+	for i=1,#recipies do
+		done=done and inventory[recipies[i].label]
+	end
+	if done and start_end_game==false then
+		start_end_game=true
+		do_after(50,transition_to_end_game)
 	end
 end
 
@@ -703,50 +715,46 @@ function set_btnx(f,lbl)
 	end
 end
 -->8
--- [ particles ] --
+-- [ end game ] --
 
-function init_particles()
-	emitters={}
-	particles={}
+function transition_to_end_game()
+	fade_percentage=0
+	music(-1)
+	sfx(16)
+	do_after(80,end_game)
 end
 
-function update_particles()
-	foreach(emitters,function(e)
-		e.ctr+=e.rate+rnd(e.rand*2)-e.rand
-		
-		while e.ctr>1 do	
-			add(particles,
-			{ x=e.x+rnd(e.w),y=e.y+rnd(e.h)
-			, vel=e.vel,dc=e.pdc,t=0
-			, c=rnd(e.clrs)
-			, event=e.event
-			, emitter=e
-			})
-			
-			e.ctr-=1
-		end
-		
-		if (e.burst) del(emitters,e)
-	end)
-	
-	foreach(particles,function(p)
-		if (p.event) p:event()
-		
-		p.t+=1
-		local dx,dy=p:vel()
-		p.x+=dx
-		p.y+=dy
-		if p:dc() then
-			del(particles,p)
-		end
-	end)
+function end_game()
+	draw=draw_end_game
+	update=update_end_game
 end
 
-function draw_particles()
-	foreach(particles,function(p)
-		pset(p.x,p.y,p.c)
-	end)
+function fade_to_end_game()	
+	if start_end_game and fade_percentage>-1 then
+		fade_percentage+=2
+		fadepal(fade_percentage/100)
+	end
 end
+
+function draw_end_game()
+	pal()
+	cls(12)
+	palt(14,true)
+	palt(0,false)
+	palt(13,true)
+	sspr(64,16,64,16,
+		0,20,128,32)
+	printol("you crafted all the clothes!",8,60,5,6)
+	for i=1,#recipies do
+		spr(recipies[i].sprite_number,40+i*8,71)
+	end
+	printol("thanks for playing!",27,84,5,6)
+	palt()
+end
+
+function update_end_game()
+end
+
 -->8
 -- [ intro screens ] --
 
@@ -899,14 +907,14 @@ function init_crafting()
 			craftable=false,
 			y=5
 		},
-		{label="sweat shirt",
-		sprite_number=97,
-			hemp=3,
-			metal=0,
-			cotton=3,
-			craftable=false,
-			y=15
-		}
+		-- {label="sweat shirt",
+		-- sprite_number=97,
+		-- 	hemp=3,
+		-- 	metal=0,
+		-- 	cotton=3,
+		-- 	craftable=false,
+		-- 	y=15
+		-- }
 	}
 	selected_recipe_i=1
 end
