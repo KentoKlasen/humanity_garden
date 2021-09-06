@@ -366,6 +366,8 @@ function init_rocks()
 
 	add_rock(8,64)
 	add_rock(32,88)
+
+	gravels={}
 end
 
 function add_rock(_x,_y)
@@ -390,22 +392,28 @@ end
 
 function mine_rock(_x,_y)
 	inventory.metal+=1
+	local gravel={
+  		x=_x,
+  		y=_y,
+  		t=0,
+  	}
+  	add(gravels,gravel)
 end
 
 function draw_rocks()
- for rock in all(rocks) do
-	spr(rock.id,rock.x,rock.y)
- end
+ 	for rock in all(rocks) do
+		spr(rock.id,rock.x,rock.y)
+ 	end
  
---  for spark in all(sparkles) do
---  	spr(64+spark.t
---  		,spark.x
---  		,spark.y)
---  	spark.t+=1
---  	if spark.t>2 then
---  		del(sparkles,spark)
---  	end
---  end
+ 	for gravel in all(gravels) do
+ 		spr(get_anim_frame(112)
+ 			,gravel.x
+ 			,gravel.y)
+ 		gravel.t+=1
+ 		if gravel.t>33 then
+ 			del(gravels,gravel)
+ 		end
+	 end
 end
 
 -->8
