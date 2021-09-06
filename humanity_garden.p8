@@ -469,10 +469,18 @@ function draw_menu()
 		local recipe_y=recipe.y+y
 		if recipe.craftable then
 			?recipe.label,x+10,recipe_y,11
-			spr(67,x+40,recipe_y)
 		else
 			?recipe.label,x+10,recipe_y,6
-			spr(67,x+40,recipe_y)
+			spr(67,x+64,recipe_y)
+		end
+
+		for k,v in pairs(resources) do
+			spr(v,x+64,recipe_y)
+			if recipe[k]>inventory[k] then
+				?recipe[k],x+72,recipe_y,8
+			else
+				?recipe[k],x+72,recipe_y,5
+			end
 		end
 	end
 	--draw cursor
@@ -840,7 +848,9 @@ end
 -- [ crafting ] --
 
 function init_crafting()
-	resources={"hemp"}
+	resources={
+		hemp=67
+	}
 	recipies={
 		{label="shirt",
 			hemp=1,
@@ -861,7 +871,7 @@ function update_crafting()
 		for recipe in all(recipies) do
 			-- check for each resource
 			local craftable=true
-			for resource in all(resources) do
+			for resource,_ in pairs(resources) do
 				if recipe[resource]>inventory[resource] then
 					craftable=false
 				end
