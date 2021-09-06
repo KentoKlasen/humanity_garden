@@ -138,23 +138,21 @@ function update_plr()
 	handle_menu_input()
 	local on_cell = is_on_cell()
 	if on_cell and
-				plr.working==false and
-				plr.actionable then
+			plr.working==false and
+			plr.actionable then
 		check_infront()
- 	handle_input()
- elseif plr.anim=="run" and
+ 		handle_input()
+ 	elseif plr.anim=="run" and
 			not on_cell then
-	 --go to next cell 
- 	--add to plr x or y
- 	if plr.dir==1 then
-	 	plr.x-=plr.spd 
- 	elseif	plr.dir==2 then
- 	 plr.x+=plr.spd 
- 	elseif plr.dir==3 then
- 	 plr.y-=plr.spd
- 	elseif plr.dir==4 then
- 	 plr.y+=plr.spd
- 	end
+ 		if plr.dir==1 then
+	 		plr.x-=plr.spd 
+ 		elseif	plr.dir==2 then
+ 		 plr.x+=plr.spd 
+ 		elseif plr.dir==3 then
+ 		 plr.y-=plr.spd
+ 		elseif plr.dir==4 then
+ 		 plr.y+=plr.spd
+ 		end
 	elseif not plr.actionable and
 		plr.working==false then
 		plr.anim="idle"
@@ -191,13 +189,15 @@ function check_infront()
 	-- don't do anything if there
 	-- is nothing of interest
 	-- in front of the player
-	if entity==nil then
-	set_btnx()
-	elseif entity.kind=="plant"
-		and entity.state==2 then
-		set_btnx(pick,"pick")
-	elseif entity.kind=="plant" then
-		set_btnx(water,"water")
+	if not disp_menu then
+		if entity==nil then
+			set_btnx()
+		elseif entity.kind=="plant"
+			and entity.state==2 then
+			set_btnx(pick,"pick")
+		elseif entity.kind=="plant" then
+			set_btnx(water,"water")
+		end
 	end
 	
 	--check if we can move forward
@@ -454,7 +454,7 @@ function toggle_disp_menu()
 		--set_btnx(do_ui_sel,"select")
 		olbl="close"
 		set_btnx(function() end
-			,"select")
+			,"craft")
 		sfx(9)
 	else
 		--set_btndir(move_plr,false)
@@ -486,12 +486,12 @@ function draw_menu()
 		end
 
 		local offset=64
-		for k,v in pairs(resources) do
-			spr(v,x+offset,recipe_y)
-			if recipe[k]>inventory[k] then
-				?recipe[k],x+offset+8,recipe_y,8
+		for _,v in ipairs(resource_ordered_list) do
+			spr(resources[v],x+offset,recipe_y)
+			if recipe[v]>inventory[v] then
+				?recipe[v],x+offset+8,recipe_y,8
 			else
-				?recipe[k],x+offset+8,recipe_y,6
+				?recipe[v],x+offset+8,recipe_y,6
 			end
 			offset+=16
 		end
