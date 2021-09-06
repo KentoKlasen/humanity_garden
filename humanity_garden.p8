@@ -97,7 +97,7 @@ end
 function init_plr()
 	plr=
 	{dir=4,
-	x=32,y=32,
+	x=24,y=40,
 	front_x=8,
 	front_y=16,
 	spd=1,
@@ -415,7 +415,6 @@ end
 function pick_plant(_x,_y)
 	plant=get_entity(_x,_y)
 	plant.picked=true
-	plant.collision=false
 	inventory[plant.kind]+=1
 end
 -->8
@@ -518,6 +517,7 @@ function draw_menu()
 		else
 			?recipe.label,x+14,recipe_y,6
 			spr(67,x+64,recipe_y)
+
 		end
 
 		local offset=64
@@ -529,6 +529,10 @@ function draw_menu()
 				?recipe[v],x+offset+8,recipe_y,6
 			end
 			offset+=16
+		end
+
+		if inventory[recipe.label] then
+			line(x+14,recipe_y+2,120,recipe_y+2,5)
 		end
 	end
 	--draw cursor
