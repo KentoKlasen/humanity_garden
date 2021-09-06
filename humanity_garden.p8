@@ -122,6 +122,7 @@ function init_plr()
 	{ idle={1,1,3,2}
 	, run ={6,6,8,4}
 	, water={35,35,37,36}
+	, mine={35,35,37,36}
 	, dance={33,33,33,33}
 	, work={35,35,37,36}
 	, craft={33,33,33,33}
@@ -261,7 +262,7 @@ function pick()
 end
 
 function mine()
-	plr.anim="water"
+	plr.anim="mine"
 	plr.working=true
 	do_after(45,end_work)
 	mine_rock(plr.front_x
@@ -286,29 +287,45 @@ function draw_player()
 	-- supposed to show on the
 	-- screen
 	frame=get_anim_frame(frame)
-	if plr.anim=="water" then
+	if plr.anim=="water" or plr.anim=="mine" then
  		local xoffset=0
 		local yoffset=0
+		--If the player is looking up we have to draw the tool first
 		if plr.dir==3 then
 			yoffset=-4
-			spr(39
+			if plr.anim=="water" then
+				tool_spr=92
+			else
+				tool_spr=94
+			end
+			tool_frame=get_anim_frame(tool_spr)
+			spr(tool_frame
 				,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
    			spr(frame
 	  			,plr.x,plr.y,1,1,plr.dir==1)
 	 	else
    			spr(frame
 	  			,plr.x,plr.y,1,1,plr.dir==1)
-	 	local can_spr=38
-	  	if plr.dir==1 then
-			xoffset=-6
-		elseif plr.dir==2 then
-		  	xoffset=6
-		elseif plr.dir==4 then
-		 	can_spr=52
-		  	yoffset=6
-	  	end
-		 	spr(can_spr
-		 		,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
+			if plr.anim=="water" then
+				tool_spr=76
+			else
+				tool_spr=78
+			end
+	 	 	if plr.dir==1 then
+				xoffset=-6
+			elseif plr.dir==2 then
+		  		xoffset=6
+			elseif plr.dir==4 then
+				if plr.anim=="water" then
+					tool_spr=108
+				else
+					tool_spr=100
+				end
+		  		yoffset=6
+	 	 	end
+			tool_frame=get_anim_frame(tool_spr)
+			spr(tool_frame
+			 	,plr.x+xoffset,plr.y+yoffset,1,1,plr.dir==1)
 	 	end
 	elseif plr.anim=="craft" then
 		spr(frame
@@ -332,6 +349,9 @@ function get_anim_frame(_frame)
 	 local plr_anim_speed=12
 		return _frame+(plr.t+plr_anim_speed)/plr_anim_speed%2
 	elseif plr.anim=="dance" then
+		local plr_anim_speed=5
+		return _frame+(plr.t+plr_anim_speed)/plr_anim_speed%2
+	elseif plr.anim=="water" or plr.anim=="mine" then
 		local plr_anim_speed=5
 		return _frame+(plr.t+plr_anim_speed)/plr_anim_speed%2
 	else
