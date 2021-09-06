@@ -345,6 +345,7 @@ function init_rocks()
 	rocks={}
 
 	add_rock(8,64)
+	add_rock(32,88)
 end
 
 function add_rock(_x,_y)
