@@ -449,13 +449,16 @@ function draw_hud()
 	end
 	local x=48
 	-- empty boxes for where the inventory goes
+	palt(13,true)
 	for i=1,#recipies do
-		rect(x,118,x+7,125,13)
 		if inventory[recipies[i].label] then
 			spr(recipies[i].sprite_number,x,118)
+		else
+			rect(x,118,x+7,125,5)
 		end
 		x+=9
 	end
+	palt(13,false)
 end
 
 function toggle_disp_menu()	
@@ -491,7 +494,9 @@ function draw_menu()
 	
 	for recipe in all(recipies) do
 		local recipe_y=recipe.y+y
+		palt(13,true)
 		spr(recipe.sprite_number,x+4,recipe_y-2)
+		palt(13,false)
 		if recipe.craftable then
 			?recipe.label,x+14,recipe_y,11
 		else
