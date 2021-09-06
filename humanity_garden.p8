@@ -874,7 +874,7 @@ function init_crafting()
 		{label="sweat shirt",
 			hemp=3,
 			metal=0,
-			cotton=3
+			cotton=3,
 			craftable=false,
 			y=15
 		}
